@@ -3,7 +3,7 @@ import winreg
 import ctypes
 import struct
 import socket
-#import netifaces
+import netifaces
 from os import listdir, getcwd
 from os.path import isfile, join
 from struct import pack
