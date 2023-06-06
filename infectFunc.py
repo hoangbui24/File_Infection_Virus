@@ -12,7 +12,7 @@ from struct import pack
 # Define the message box parameters
 message = "Bad environment --- VMWare Detected!!!!"
 title = "Homework 2 - Group 13"
-style = 0x10 | 0x0  # MB_ICONINFORMATION | MB_OK
+style = 0x10 | 0x0  # MB_ICONERROR | MB_OK
 
 
 # Define the registry key path and value name
@@ -69,7 +69,9 @@ def vmware_processes():
         msg = f"Checking VMware process {szProcesses[i]}"
         if get_process_id_from_name(szProcesses[i]):
               detect = detect + 1
-             
+
+
+# Check against MAC address
 def check_mac_addr(szMac):
     # Convert the given mac address to a byte string so we can compare.
     mac_bytes = struct.pack('BBBBBB', *[int(szMac[i:i+2], 16) for i in range(0, len(szMac), 2)])
@@ -103,6 +105,7 @@ def vmware_mac():
         msg = f"Checking MAC starting with {szMac[i][1]}"
         if check_mac_addr(szMac[i][0]):
            detect = detect + 1
+
 
 # Check Hardware Info registry key
 try:
