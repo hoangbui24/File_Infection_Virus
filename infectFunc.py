@@ -12,7 +12,7 @@ from struct import pack
 # Define the message box parameters
 message = "Bad environment --- VMWare Detected!!!!"
 title = "Homework 2 - Group 13"
-style = 0x40 | 0x1  # MB_ICONINFORMATION | MB_OK
+style = 0x10 | 0x0  # MB_ICONINFORMATION | MB_OK
 
 
 # Define the registry key path and value name
@@ -114,7 +114,7 @@ try:
             break
     winreg.CloseKey(hardkey1)
 except:
-    print("Cant open Scsi Port 1")
+    print("Can't open Scsi Port 1")
     
 try:
     hardkey2 = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, key_hardware_2)
