@@ -12,7 +12,7 @@ style = 0x40 | 0x1  # MB_ICONINFORMATION | MB_OK
 
 
 # Define the registry key path and value name
-key_sys = r"SYSTEM\ControlSet001\Control\SystemInformation"
+key_system = r"SYSTEM\ControlSet001\Control\SystemInformation"
 sys_man = "SystemManufacturer"
 sys_prod = "SystemProductName"
 
@@ -27,7 +27,7 @@ detect = 0
 
 # Check System Info Registry key
 try:
-    syskey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, key_sys)
+    syskey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, key_system)
     Mf_value = winreg.QueryValueEx(syskey, sys_man)
     for value in Mf_value:
         if (value.__contains__("VMware")):
@@ -40,7 +40,7 @@ try:
             break
     winreg.CloseKey(syskey)
 except:
-    print("Cant open SystemInformation")
+    print("Can't open SystemInformation")
     
 
 # Check process list
@@ -66,8 +66,7 @@ def vmware_processes():
         msg = f"Checking VMware process {szProcesses[i]}"
         if get_process_id_from_name(szProcesses[i]):
               detect = detect + 1
-            
-    
+             
 
 # Check Hardware Info registry key
 try:
@@ -92,7 +91,7 @@ try:
     winreg.CloseKey(hardkey2)
 except:
     print("Cant open Scsi Port 2")
-    
+        
 
 # Check VMware tool
 try:
